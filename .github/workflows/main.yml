@@ -1,0 +1,38 @@
+name: Close PRs from Forked Repositories
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+
+jobs:
+  close-forked-prs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Close PR if from a forked repo
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          PR_OWNER=$(jq --raw-output .pull_request.head.repo.owner.login $GITHUB_EVENT_PATH)
+          PR_REPO=$(jq --raw-output .pull_request.head.repo.name $GITHUB_EVENT_PATH)
+          IS_FORK=$(jq --raw-output .pull_request.head.repo.fork $GITHUB_EVENT_PATH)
+
+          if [ "$IS_FORK" == "true" ]; then
+            PR_NUMBER=$(jq --raw-output .pull_request.number $GITHUB_EVENT_PATH)
+            echo "This PR is from a forked repository. Closing PR #$PR_NUMBER."
+
+            # Close the PR using GitHub API
+            curl -X PATCH \
+              -H "Authorization: Bearer $GITHUB_TOKEN" \
+              -H "Accept: application/vnd.github.v3+json" \
+              -d '{"state": "closed"}' \
+              "https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls/$PR_NUMBER"
+          else
+            echo "This PR is not from a forked repository. No action taken."
+          fi
