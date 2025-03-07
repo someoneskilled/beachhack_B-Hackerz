@@ -6,6 +6,10 @@ const UserSchema = new mongoose.Schema({
         required: true,
         unique: true,
     },
+    profilePic: {
+        type: String,
+        default: ''
+      },
     name: {
         type: String,
         required: true,
@@ -15,11 +19,7 @@ const UserSchema = new mongoose.Schema({
         required: true,
     },
     experience: {
-        type: Number, // Years of experience
-        required: true,
-    },
-    experienceSince: {
-        type: Date,
+        type: Number,
         required: true,
     },
     skills: {

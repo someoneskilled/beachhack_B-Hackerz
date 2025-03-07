@@ -1,22 +1,22 @@
-// app/dashboard/create-profile/page.js
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useUser } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 import { createUserProfile } from '../actions/useractions';
+import imageCompression from 'browser-image-compression';
 
 export default function CreateProfilePage() {
   const { user, isLoaded: isUserLoaded } = useUser();
   const router = useRouter();
-  
+
   const [formData, setFormData] = useState({
     name: '',
     profession: '',
     experience: '',
-    experienceSince: '',
     skills: [],
     uniqueSellingPoint: '',
+    profilePic: '',
     location: {
       village: '',
       district: '',
@@ -35,101 +35,146 @@ export default function CreateProfilePage() {
   const [error, setError] = useState(null);
   const [skillInput, setSkillInput] = useState('');
   const [languageInput, setLanguageInput] = useState('');
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(null); // For image preview
+
+  const fileInputRef = useRef(null); // Ref for file input
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    
+
     if (name.includes('.')) {
       const [parent, child] = name.split('.');
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         [parent]: {
           ...prev[parent],
-          [child]: value
-        }
+          [child]: value,
+        },
       }));
     } else {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        [name]: value
+        [name]: value,
       }));
     }
   };
 
+  const handleFileChange = async (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      try {
+        // Compress the image
+        const options = {
+          maxSizeMB: 1, // Maximum size in MB
+          maxWidthOrHeight: 1024, // Maximum width or height
+          useWebWorker: true, // Use web worker for better performance
+        };
+        const compressedFile = await imageCompression(file, options);
+        setSelectedFile(compressedFile);
+
+        // Create a preview URL for the compressed image
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setPreviewUrl(reader.result);
+        };
+        reader.readAsDataURL(compressedFile);
+      } catch (error) {
+        console.error('Error compressing image:', error);
+        setError('Failed to process the image. Please try again.');
+      }
+    }
+  };
+
+  const triggerFileSelect = () => {
+    fileInputRef.current.click(); // Trigger file input click
+  };
+
   const addSkill = () => {
     if (skillInput.trim() && !formData.skills.includes(skillInput.trim())) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        skills: [...prev.skills, skillInput.trim()]
+        skills: [...prev.skills, skillInput.trim()],
       }));
       setSkillInput('');
     }
   };
 
   const removeSkill = (skill) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      skills: prev.skills.filter(s => s !== skill)
+      skills: prev.skills.filter((s) => s !== skill),
     }));
   };
 
   const addLanguage = () => {
     if (languageInput.trim() && !formData.languages.includes(languageInput.trim())) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        languages: [...prev.languages, languageInput.trim()]
+        languages: [...prev.languages, languageInput.trim()],
       }));
       setLanguageInput('');
     }
   };
 
   const removeLanguage = (language) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      languages: prev.languages.filter(l => l !== language)
+      languages: prev.languages.filter((l) => l !== language),
     }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!isUserLoaded || !user) {
       setError('You must be logged in to create a profile');
       return;
     }
-    
+
     try {
       setLoading(true);
       setError(null);
-      
-      // Calculate experienceSince from experience years if needed
-      let submitData = { ...formData };
-      submitData.experience = parseInt(submitData.experience);
-      
-      if (!submitData.experienceSince) {
-        const currentYear = new Date().getFullYear();
-        const startYear = currentYear - submitData.experience;
-        // Use January 1st of the start year
-        submitData.experienceSince = new Date(startYear, 0, 1);
-      } else {
-        submitData.experienceSince = new Date(submitData.experienceSince);
+
+      // Upload profile picture if selected
+      let profilePicUrl = '';
+      if (selectedFile) {
+        const formData = new FormData();
+        formData.append('file', selectedFile);
+
+        const uploadResponse = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!uploadResponse.ok) {
+          throw new Error('Failed to upload profile picture');
+        }
+
+        const { url } = await uploadResponse.json();
+        profilePicUrl = url;
       }
-      
-      // Pre-fill email from Clerk user if available and not provided
+
+      // Prepare submit data with profile picture URL
+      let submitData = {
+        ...formData,
+        experience: parseInt(formData.experience),
+        profilePic: profilePicUrl,
+      };
+
       if (!submitData.contactDetails.email && user.primaryEmailAddress) {
         submitData.contactDetails.email = user.primaryEmailAddress.emailAddress;
       }
-      
+
       const result = await createUserProfile(submitData, user.id);
-      
+
       if (result.success) {
-        // Redirect to home page on success
         router.push('/');
       } else {
         setError(result.message || 'Failed to create profile');
       }
     } catch (err) {
-      setError('An error occurred while creating your profile');
+      setError(err.message || 'An error occurred while creating your profile');
       console.error(err);
     } finally {
       setLoading(false);
@@ -144,13 +189,13 @@ export default function CreateProfilePage() {
     <div className="container mx-auto p-4">
       <div className="max-w-4xl mx-auto bg-white shadow-md rounded-lg p-6">
         <h1 className="text-2xl font-bold mb-6">Create Your Artisan Profile</h1>
-        
+
         {error && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
             <p>{error}</p>
           </div>
         )}
-        
+
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Basic Information */}
           <div className="border-b pb-4">
@@ -169,7 +214,7 @@ export default function CreateProfilePage() {
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Profession/Work*
@@ -184,7 +229,7 @@ export default function CreateProfilePage() {
                   placeholder="e.g., Carpenter, Weaver, Potter"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Years of Experience*
@@ -199,29 +244,41 @@ export default function CreateProfilePage() {
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Started Working (approx. date)
+                  Profile Picture
                 </label>
-                <input
-                  type="date"
-                  name="experienceSince"
-                  value={formData.experienceSince}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-                <p className="text-xs text-gray-500 mt-1">
-                  Optional - if not provided, will be calculated from years of experience
-                </p>
+                <div className="flex items-center">
+                  <div
+                    className="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden cursor-pointer"
+                    onClick={triggerFileSelect}
+                  >
+                    {previewUrl ? (
+                      <img
+                        src={previewUrl}
+                        alt="Profile Preview"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <span className="text-gray-500">Upload</span>
+                    )}
+                  </div>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className="hidden"
+                    ref={fileInputRef}
+                  />
+                </div>
               </div>
             </div>
           </div>
-          
-          {/* Skills */}
+
+          {/* Skills & Expertise */}
           <div className="border-b pb-4">
             <h2 className="text-xl font-semibold mb-4">Skills & Expertise</h2>
-            
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Add Skills
@@ -243,11 +300,11 @@ export default function CreateProfilePage() {
                 </button>
               </div>
             </div>
-            
+
             <div className="flex flex-wrap gap-2 mb-4">
-              {formData.skills.map(skill => (
-                <span 
-                  key={skill} 
+              {formData.skills.map((skill) => (
+                <span
+                  key={skill}
                   className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm flex items-center"
                 >
                   {skill}
@@ -261,7 +318,7 @@ export default function CreateProfilePage() {
                 </span>
               ))}
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Your Unique Style/Approach*
@@ -277,7 +334,7 @@ export default function CreateProfilePage() {
               ></textarea>
             </div>
           </div>
-          
+
           {/* Location */}
           <div className="border-b pb-4">
             <h2 className="text-xl font-semibold mb-4">Location</h2>
@@ -295,7 +352,7 @@ export default function CreateProfilePage() {
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   District*
@@ -309,7 +366,7 @@ export default function CreateProfilePage() {
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   State*
@@ -323,7 +380,7 @@ export default function CreateProfilePage() {
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Pincode*
@@ -339,8 +396,8 @@ export default function CreateProfilePage() {
               </div>
             </div>
           </div>
-          
-          {/* Contact Details */}
+
+          {/* Contact Information */}
           <div className="border-b pb-4">
             <h2 className="text-xl font-semibold mb-4">Contact Information</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -357,7 +414,7 @@ export default function CreateProfilePage() {
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Alternate Phone
@@ -370,7 +427,7 @@ export default function CreateProfilePage() {
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Email
@@ -381,16 +438,15 @@ export default function CreateProfilePage() {
                   value={formData.contactDetails.email}
                   onChange={handleChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder={user?.primaryEmailAddress?.emailAddress || ""}
+                  placeholder={user?.primaryEmailAddress?.emailAddress || ''}
                 />
               </div>
             </div>
           </div>
-          
+
           {/* Languages */}
           <div>
             <h2 className="text-xl font-semibold mb-4">Languages You Speak</h2>
-            
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Add Language
@@ -412,11 +468,11 @@ export default function CreateProfilePage() {
                 </button>
               </div>
             </div>
-            
+
             <div className="flex flex-wrap gap-2">
-              {formData.languages.map(language => (
-                <span 
-                  key={language} 
+              {formData.languages.map((language) => (
+                <span
+                  key={language}
                   className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm flex items-center"
                 >
                   {language}
@@ -431,7 +487,8 @@ export default function CreateProfilePage() {
               ))}
             </div>
           </div>
-          
+
+          {/* Submit Button */}
           <div className="mt-8 flex justify-end">
             <button
               type="submit"
