@@ -1,7 +1,7 @@
-# Project Name
+# SkillHub
 
 ## 🚀 Project Description
-A concise, engaging description of your hackathon project.
+SkillHub is a multilingual marketplace empowering underprivileged artisans by connecting them with buyers and learners. Through personalized profiles, artisans showcase their unique skills, handcrafted products, and generational knowledge. A smart AI chatbot helps users explore artisans’ talents, learn traditional crafts and contact them and even place orders. By eliminating middlemen and providing direct market access, SkillHub fosters economic growth, cultural preservation, and fair opportunities for skilled yet underserved communities. 🚀💡
 
 ## 🎯 Link to Project
 [live link of project](live_link)
