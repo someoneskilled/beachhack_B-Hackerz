@@ -8,6 +8,8 @@ import { Navigation, Pagination } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
+import { SignInButton, SignUpButton, UserButton, useUser } from "@clerk/nextjs";
+
 
 export default function Home() {
   const [products, setProducts] = useState([]);
@@ -29,7 +31,7 @@ export default function Home() {
     }
     fetchProducts();
   }, []);
-  
+
   // Add this effect to load Razorpay script
   useEffect(() => {
     const loadRazorpayScript = () => {
@@ -56,30 +58,17 @@ export default function Home() {
       </div>
     );
   }
-  
+
   return (
     <div className="max-w-6xl mx-auto px-4 py-8 ">
       {/* Navigation */}
-      <nav className="flex items-center justify-between mb-10">
-        <div className="font-bold text-xl">arthouse</div>
-        <div className="flex space-x-8">
-          <div className="font-medium">Marketplace</div>
-          <div className="font-medium">Auctions</div>
-          <div className="font-medium">Feed</div>
-        </div>
-        <div className="flex space-x-3">
-          <button className="bg-purple-600 text-white px-4 py-2 rounded-md font-medium">Log in</button>
-          <Link href="/signup">
-            <button className="border border-gray-300 px-4 py-2 rounded-md font-medium">Sign up</button>
-          </Link>
-        </div>
-      </nav>
-      
+
+
       {/* Hero Section */}
       <div className="flex flex-col md:flex-row items-start justify-between gap-10 mb-16">
         <div className="md:w-1/2">
-          <h1 className="text-4xl font-bold mb-3">Discover, and collect original Art</h1>
-          <p className="text-gray-600 mb-6">Explore a curated selection of original artwork from talented creators around the world. Buy, sell or simply enjoy the amazing art.</p>
+          <h1 className="text-4xl font-bold mb-3">Discover, and Collect <br/> Original Art</h1>
+          <p className="text-gray-600 mb-6">A platform where art meets opportunity, heritage meets innovation, and talent meets the world.</p>
           <button onClick={() => {
             document.getElementById('exploreNow').scrollIntoView({
               behavior: 'smooth',
@@ -105,34 +94,19 @@ export default function Home() {
           <img
             src="landing1.png"
             alt="creator"
-            className="w-96 h-80 rounded-lg mb-2"
+            className="ml-28 w-96 h-80 rounded-lg mb-2"
           />
         </div>
       </div>
-      
+
       {/* Features */}
       <div className="flex justify-center mb-16">
-        <div className="flex flex-col md:flex-row gap-6 md:gap-16">
-          <div className="flex items-center gap-2">
-            <div className="w-10 h-10 bg-gray-100 flex items-center justify-center rounded-full">🎨</div>
-            <span className="text-sm">Curated Artist Collections</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-10 h-10 bg-gray-100 flex items-center justify-center rounded-full">🔒</div>
-            <span className="text-sm">Secure Transactions</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-10 h-10 bg-gray-100 flex items-center justify-center rounded-full">🌎</div>
-            <span className="text-sm">Global Opportunities</span>
-          </div>
-        </div>
+          <img
+            src="landingtext.png"
+            
+          />
       </div>
-      
-      {/* The amazing NFT section */}
-      <div className="mb-16">
-        <h2 className="text-2xl font-bold mb-2">The amazing NFT art of the world here</h2>
-      </div>
-      
+
       {/* Explore Creators */}
       <div className="mb-16">
         <h2 className="text-2xl font-bold mb-8">Explore Creators</h2>
@@ -144,7 +118,7 @@ export default function Home() {
               alt="creator"
               className="w-72 h-60 object-cover rounded-lg mb-2"
             />
-            <p className="font-medium text-sm">Digital Artwork</p>
+            <p className="font-medium text-sm">Traditional Artwork</p>
             <p className="text-gray-500 text-xs">19 items</p>
           </div>
           {/* Creator 2 */}
@@ -154,7 +128,7 @@ export default function Home() {
               alt="creator"
               className="w-72 h-60 object-cover rounded-lg mb-2"
             />
-            <p className="font-medium text-sm">Amazing Collection</p>
+            <p className="font-medium text-sm">Handicrafts</p>
             <p className="text-gray-500 text-xs">25 items</p>
           </div>
           {/* Creator 3 */}
@@ -164,12 +138,12 @@ export default function Home() {
               alt="creator"
               className="w-72 h-60 object-cover rounded-lg mb-2"
             />
-            <p className="font-medium text-sm">GIF Based NFTs</p>
+            <p className="font-medium text-sm">Pottery</p>
             <p className="text-gray-500 text-xs">8 items</p>
           </div>
         </div>
       </div>
-      
+
       {/* Explore Art Section */}
       <div className="mb-16" id="exploreNow">
         <div className="flex justify-between items-center mb-6">
@@ -186,14 +160,14 @@ export default function Home() {
             </div>
           </div>
         </div>
-        
+
         {/* NFT Cards */}
         <div className="space-y-6">
           {products.map((product, index) => (
             <ProductCard key={index} product={product} router={router} />
           ))}
         </div>
-        
+
         {/* Show More Button */}
         <div className="flex justify-center mt-8">
           <button className="border border-purple-600 text-purple-600 px-6 py-2 rounded-full text-sm font-medium">
@@ -210,24 +184,24 @@ export default function Home() {
 function ProductCard({ product, router }) {
   const [quantity, setQuantity] = useState(1);
   const [isPaymentLoading, setIsPaymentLoading] = useState(false);
-  
+
   const increaseQuantity = () => {
     setQuantity(prev => prev + 1);
   };
-  
+
   const decreaseQuantity = () => {
     if (quantity > 1) {
       setQuantity(prev => prev - 1);
     }
   };
-  
+
   const handleBuyNow = async () => {
     try {
       setIsPaymentLoading(true);
-      
+
       // Calculate the total amount
       const amount = product.price * quantity;
-      
+
       // Create an order on the server
       const response = await fetch('/api/payment/create-order', {
         method: 'POST',
@@ -241,13 +215,13 @@ function ProductCard({ product, router }) {
           quantity,
         }),
       });
-      
+
       const data = await response.json();
-      
+
       if (!response.ok) {
         throw new Error(data.error || 'Failed to create payment order');
       }
-      
+
       // Initialize Razorpay
       const options = {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
@@ -256,7 +230,7 @@ function ProductCard({ product, router }) {
         name: "Your Shop Name",
         description: `Purchase of ${product.name} (Qty: ${quantity})`,
         order_id: data.id,
-        handler: function(response) {
+        handler: function (response) {
           // Handle successful payment
           router.push(`/payment/success?orderId=${data.id}&paymentId=${response.razorpay_payment_id}`);
         },
@@ -273,15 +247,15 @@ function ProductCard({ product, router }) {
           color: "#3399cc"
         }
       };
-      
+
       const paymentObject = new window.Razorpay(options);
       paymentObject.open();
-      
+
       // Handle payment failures
-      paymentObject.on('payment.failed', function(response) {
+      paymentObject.on('payment.failed', function (response) {
         alert(`Payment failed: ${response.error.description}`);
       });
-      
+
     } catch (error) {
       console.error('Payment error:', error);
       alert('Payment initialization failed. Please try again.');
@@ -289,7 +263,7 @@ function ProductCard({ product, router }) {
       setIsPaymentLoading(false);
     }
   };
-  
+
   return (
     <div className="bg-white rounded-xl shadow-md overflow-hidden mb-6">
       <div className="relative">
@@ -323,7 +297,7 @@ function ProductCard({ product, router }) {
               </SwiperSlide>
             )}
           </Swiper>
-          
+
           {/* Thumbnail overlay in the bottom left */}
           <div className="absolute bottom-4 left-4 w-24 h-24 rounded-md border-2 border-white overflow-hidden shadow-md">
             <img
@@ -333,22 +307,22 @@ function ProductCard({ product, router }) {
             />
           </div>
         </div>
-        
+
         {/* Price and quantity selector */}
-        <div className="absolute bottom-4 right-4 bg-white rounded-lg shadow-md p-2 flex items-center space-x-3">
+        <div className="absolute bottom-[-45] right-4 bg-white rounded-lg shadow-md p-2 flex items-center space-x-3">
           <div className="text-lg font-bold text-purple-600">
             ₹{product.price?.toLocaleString()}
           </div>
-          
+
           <div className="flex items-center border border-gray-200 rounded-md">
-            <button 
+            <button
               onClick={decreaseQuantity}
               className="px-2 py-1 text-gray-600 hover:bg-gray-100 rounded-l-md"
             >
               -
             </button>
             <span className="px-3 py-1 text-gray-800">{quantity}</span>
-            <button 
+            <button
               onClick={increaseQuantity}
               className="px-2 py-1 text-gray-600 hover:bg-gray-100 rounded-r-md"
             >
@@ -356,7 +330,7 @@ function ProductCard({ product, router }) {
             </button>
           </div>
         </div>
-        
+
         {/* Title and location bar */}
         <div className="px-4 py-3 flex justify-between items-center">
           <div>
@@ -368,7 +342,7 @@ function ProductCard({ product, router }) {
           </span>
         </div>
       </div>
-      
+
       {/* Action buttons below the card */}
       <div className="flex mt-2 mb-4 px-4 gap-4">
         <Link href={`/chat/${product.user?._id}`}>
@@ -376,12 +350,11 @@ function ProductCard({ product, router }) {
             Learn More
           </button>
         </Link>
-        <button 
+        <button
           onClick={handleBuyNow}
           disabled={isPaymentLoading}
-          className={`text-white font-medium text-sm bg-purple-600 px-6 py-2 rounded-md hover:bg-purple-700 transition ${
-            isPaymentLoading ? "opacity-70 cursor-not-allowed" : ""
-          }`}
+          className={`text-white font-medium text-sm bg-purple-600 px-6 py-2 rounded-md hover:bg-purple-700 transition ${isPaymentLoading ? "opacity-70 cursor-not-allowed" : ""
+            }`}
         >
           {isPaymentLoading ? "Processing..." : "Buy Now"}
         </button>

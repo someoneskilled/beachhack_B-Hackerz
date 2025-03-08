@@ -1,6 +1,8 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import NFTersFooter from "./components/NFTersFooter";
+import Link from "next/link";
+import AuthButton from "./components/AuthButton";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -21,16 +23,35 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <ClerkProvider>
-
       <html lang="en">
         <head>
           <script src="https://checkout.razorpay.com/v1/checkout.js" async></script>
         </head>
-        <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        >
+        <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+          <nav className="flex items-center justify-between py-4 px-14">
+            <div className="flex items-center gap-7">
+
+            <Link href={"/"}>
+              <div className="font-bold text-xl cursor-pointer text-purple-500">Connect</div>
+            </Link>
+            <div className="flex space-x-8">
+              <Link href={"/"}>
+                <div className="font-medium cursor-pointer">Marketplace</div>
+              </Link>
+              <Link href={"/landing"}>
+                <div className="font-medium cursor-pointer">Add Item</div>
+              </Link>
+              <Link href={"/about"}>
+                <div className="font-medium cursor-pointer">About</div>
+              </Link>
+            </div>
+            </div>
+            <div className="flex space-x-3">
+              <AuthButton /> {/* Uses the client-side component here */}
+            </div>
+          </nav>
           {children}
-          <NFTersFooter/>
+          <NFTersFooter />
         </body>
       </html>
     </ClerkProvider>

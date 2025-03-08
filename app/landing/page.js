@@ -28,6 +28,7 @@ export default function ProductLandingPage() {
             loadProducts();
         }
     }, [userId]);
+    
 
     // Load products using the imported function
     const loadProducts = async () => {
@@ -182,17 +183,17 @@ export default function ProductLandingPage() {
                     <>
                         <button
                             onClick={prevSlide}
-                            className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/30 text-white p-2 rounded-full hover:bg-black/50 transition-colors"
+                            className="absolute hidden left-2 top-1/2 -translate-y-1/2 bg-black/30 text-white p-2 rounded-full hover:bg-black/50 transition-colors"
                             aria-label="Previous image"
                         >
-                            <FiChevronLeft size={20} />
+                            <FiChevronLeft size={0} />
                         </button>
                         <button
                             onClick={nextSlide}
-                            className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/30 text-white p-2 rounded-full hover:bg-black/50 transition-colors"
+                            className="absolute hidden right-2 top-1/2 -translate-y-1/2 bg-black/30 text-white p-2 rounded-full hover:bg-black/50 transition-colors"
                             aria-label="Next image"
                         >
-                            <FiChevronRight size={20} />
+                            <FiChevronRight size={0} />
                         </button>
                         <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex space-x-2">
                             {images.map((_, index) => (
@@ -226,7 +227,7 @@ export default function ProductLandingPage() {
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={() => setShowForm(!showForm)}
-                        className="flex items-center gap-2 bg-blue-600 text-white px-5 py-3 rounded-lg hover:bg-blue-700 transition-all shadow-md"
+                        className="flex items-center gap-2 bg-purple-500 font-bold text-white px-5 py-3 rounded-lg transition-all shadow-md"
                     >
                         {showForm ? <FiX size={20} /> : <FiPlus size={20} />}
                         {showForm ? 'Close Form' : 'Add Listing'}
@@ -273,7 +274,7 @@ export default function ProductLandingPage() {
                                     </div>
 
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">Price ( $ )</label>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Price ( ₹ )</label>
                                         <input
                                             type="number"
                                             placeholder="0.00"
@@ -419,7 +420,7 @@ export default function ProductLandingPage() {
                                         <h3 className="text-xl font-bold text-gray-800 mb-2">{product.name}</h3>
                                         <p className="text-gray-600 mb-3 line-clamp-3">{product.description}</p>
                                         <div className="flex justify-between items-center">
-                                            <p className="text-2xl font-bold text-blue-600"> $ {parseFloat(product.price).toFixed(2)}</p>
+                                            <p className="text-2xl font-bold text-purple-600"> ₹ {parseFloat(product.price).toFixed(2)}</p>
                                             <motion.button
                                                 whileHover={{ scale: 1.05 }}
                                                 whileTap={{ scale: 0.95 }}

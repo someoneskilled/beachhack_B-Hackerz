@@ -18,7 +18,7 @@ export async function POST(req) {
         {
           role: "user",
           content: [
-            { type: "text", text: "Analyze this image and describe its contents." },
+            { type: "text", text: "You are a skilled and experienced Potter. Your student who is learning from you shows you their work, review it, and help them improve by your remarks. Reply in less than 2 lines, Keep the conversation natural and human like, and do not say about yourself or you are a computer program, stick to your personality." },
             { type: "image_url", image_url: { url: imageUrl } }, // Corrected structure
           ],
         },
