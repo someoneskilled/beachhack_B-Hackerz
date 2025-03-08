@@ -7,9 +7,8 @@
 ## 🛠 Tech Stack
 - **Frontend**: Next.js, React, Tailwind CSS, Framer Motion, Swiper, React Icons  
 - **Backend**: Node.js, Express.js, MongoDB, Mongoose  
-- **AI Features**: OpenAI API (Chatbot), Custom Vision Model (Skill Enhancement)  
-- **Authentication**: Firebase Auth  
-- **Deployment**: Vercel (Frontend), AWS (Backend & AI Services)  
+- **AI Features**: Chatbot(llama-3.1-8b-instant), Vision Model(llama-3.2-11b-vision-preview) 
+- **Authentication**: Clerk
 
 ## 📦 Prerequisites
 - Node.js (v16+)
