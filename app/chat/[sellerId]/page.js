@@ -104,7 +104,7 @@ export default function SellerChat() {
   const clearHistory = () => {
     setMessages([{
       sender: "bot",
-      text: `Hi there! I'm ${seller.name}, a ${seller.profession} with ${seller.experience} years of experience. How can I help you today?`
+      text: `Hi ${seller.name} here, wassup`
     }]);
     if (typeof window !== "undefined") {
       localStorage.removeItem(`chat_${sellerId}`);

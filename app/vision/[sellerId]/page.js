@@ -140,7 +140,7 @@ export default function SellerVision() {
       >
         <div className="px-6 py-8 sm:p-10">
           <h1 className="text-3xl font-bold text-center text-gray-800 mb-2">
-            Vision Analysis
+            Show the Art
           </h1>
           <p className="text-center text-gray-600 mb-8">
             Share an image with {seller.name} for expert analysis
@@ -214,7 +214,7 @@ export default function SellerVision() {
                     Analyzing...
                   </div>
                 ) : (
-                  `Ask  ${seller.name} to analyze this image`
+                  `Ask  ${seller.name} to review this`
                 )}
               </motion.button>
             </div>
