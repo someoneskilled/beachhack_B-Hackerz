@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef,useEffect } from 'react';
 import { useUser } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
-import { createUserProfile } from '../actions/useractions';
+import { createUserProfile,getUserProfile } from '../actions/useractions';
 import imageCompression from 'browser-image-compression';
 
 export default function CreateProfilePage() {
@@ -34,11 +34,36 @@ export default function CreateProfilePage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [skillInput, setSkillInput] = useState('');
+  const [checkingProfile, setCheckingProfile] = useState(true);
   const [languageInput, setLanguageInput] = useState('');
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null); // For image preview
 
   const fileInputRef = useRef(null); // Ref for file input
+
+
+  useEffect(() => {
+    async function checkExistingProfile() {
+      if (!isUserLoaded || !user) return;
+      
+      try {
+        setCheckingProfile(true);
+        const { success, profile } = await getUserProfile(user.id);
+        
+        if (success && profile) {
+          // User already has a profile, redirect to dashboard
+          router.push('/landing');
+        }
+      } catch (error) {
+        console.error("Error checking user profile:", error);
+        // If there's an error, we'll continue with the form in case they need to create a profile
+      } finally {
+        setCheckingProfile(false);
+      }
+    }
+    
+    checkExistingProfile();
+  }, [isUserLoaded, user, router]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -169,7 +194,7 @@ export default function CreateProfilePage() {
       const result = await createUserProfile(submitData, user.id);
 
       if (result.success) {
-        router.push('/');
+        router.push('/landing');
       } else {
         setError(result.message || 'Failed to create profile');
       }
@@ -503,4 +528,4 @@ export default function CreateProfilePage() {
       </div>
     </div>
   );
-}
+} 

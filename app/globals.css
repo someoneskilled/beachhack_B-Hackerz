@@ -12,15 +12,47 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
   }
-}
+} */
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+
+/* This CSS ensures images are properly sized and zoomed if needed */
+.image-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.product-image {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* This crops the image to fill the container */
+  object-position: center; /* Centers the image */
+}
+
+/* Add some styling for Swiper */
+.swiper-pagination {
+  position: absolute;
+  bottom: 0 !important;
+}
+
+.swiper-button-next,
+.swiper-button-prev {
+  color: #9333ea !important; /* Purple color matching your theme */
+  transform: scale(0.7); /* Make navigation arrows smaller */
+}
+
+.swiper-container {
+  width: 100%;
+  height: 100%;
 }

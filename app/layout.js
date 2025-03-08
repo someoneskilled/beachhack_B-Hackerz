@@ -1,5 +1,6 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
+import NFTersFooter from "./components/NFTersFooter";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -22,10 +23,14 @@ export default function RootLayout({ children }) {
     <ClerkProvider>
 
       <html lang="en">
+        <head>
+          <script src="https://checkout.razorpay.com/v1/checkout.js" async></script>
+        </head>
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
           {children}
+          <NFTersFooter/>
         </body>
       </html>
     </ClerkProvider>
