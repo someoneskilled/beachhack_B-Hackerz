@@ -59,5 +59,6 @@
 1. Priyanshu Agarwal
 2. Keerthana Reddy
 3. Harshitha L
+4. Anthony Pinto
 
 ## ❤️ Made with passion at Beachack 6.0
