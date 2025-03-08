@@ -57,10 +57,8 @@
    ```
 
 ## 👥 Team Members
-1. [Your Name]  
-2. [Team Member 2]  
-3. [Team Member 3]  
-4. [Team Member 4]  
+1. Priyanshu Agarwal
+2. Keerthana Reddy
+3. Harshitha L
 
-## ❤️ Made with passion at [Your Hackathon/Event Name]
-
+## ❤️ Made with passion at Beachack 6.0
