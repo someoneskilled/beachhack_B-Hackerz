@@ -3,8 +3,6 @@
 ## 🚀 Project Overview
 **Connect** is an innovative platform designed to bridge skilled artisans and craftsmen with potential buyers and learners. Through AI-powered engagement, commission-free transactions, and skill-enhancement tools, Connect ensures that talented individuals receive the recognition, exposure, and opportunities they deserve.
 
-## 🎯 Live Project Link
-[Explore Connect](live_link)
 
 ## 🛠 Tech Stack
 - **Frontend**: Next.js, React, Tailwind CSS, Framer Motion, Swiper, React Icons  
